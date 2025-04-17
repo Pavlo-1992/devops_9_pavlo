@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+read -p "Filename: " filename
+
+
+if [[ -f "$filename" ]]; then
+    echo "File found.Its contents:":
+    cat "$filename"
+else
+    echo "Error: File '$filename' does not exist."
+fi

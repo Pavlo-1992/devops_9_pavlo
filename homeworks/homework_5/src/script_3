@@ -1,0 +1,11 @@
+#!/bin/bash
+
+FILE="$1"
+
+
+if [ -e "$FILE" ]; then
+  echo "File '$FILE' exist"
+else
+  echo "File '$FILE' not exist"
+fi
+

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+
+fruits=("Apple" "Grape" "Banana"  "Lemon" "Orange" "Mango" "Pineapple")
+
+for fruit in "${fruits[@]}"
+do
+    echo $fruit
+done
+

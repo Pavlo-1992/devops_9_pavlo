@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch Directory for New Files
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/pavlo/devops_9_pavlo/homeworks/homework_5/src/script_10
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

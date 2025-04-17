@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Imput:  "
+
+read text
+
+reversed=$(echo "$text" | awk '{ for (i=NF; i>0; i--) printf("%s ", $i); print "" }')
+
+echo   "$reversed"

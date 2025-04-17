@@ -1,0 +1,14 @@
+
+#!/bin/bash
+
+filename=$1
+
+if [ ! -f "$1" ]; then
+        echo "Error! File $1 not found!"
+        exit 1
+fi
+
+lines=$(wc -l < "$1")
+
+echo " $1 : $lines lines"
+

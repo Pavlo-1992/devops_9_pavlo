@@ -1,0 +1,25 @@
+#!/bin/bash
+
+WATCH_DIR="$HOME/watch"
+
+
+if [ ! -d "$WATCH_DIR" ]; then
+  mkdir -p "$WATCH_DIR"
+fi
+
+
+inotifywait -m -e create "$WATCH_DIR" | while read path action file; do
+  FULL_PATH="$path$file"
+  echo "New file detected: $file"
+
+  
+  if [ -f "$FULL_PATH" ]; then
+    echo "Content of $file:";
+    cat "$FULL_PATH"
+  fi
+
+ 
+  mv "$FULL_PATH" "$FULL_PATH.back"
+  echo "Renamed $file to $file.back"
+done
+
