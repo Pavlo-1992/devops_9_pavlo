@@ -1,0 +1,36 @@
+#!/bin/bash
+
+random_number=$((RANDOM % 100 + 1))
+
+max_attempts=5
+
+attempts=0
+
+echo "Guess the number. you have $max_attempts attempts to do this."
+
+while [ $attempts -lt $max_attempts ]; do
+  ((attempts ++))
+
+  read -p "Attempts $attempts/$max_attempts: Enter a number: " user_guess
+
+  if ! [[ "$user_guess" =~ ^[0-9]+$ ]]; then
+    echo "Not correct! Enter a whole number!"
+    ((attempts --)) 
+    continue
+  fi
+
+user_guess=$((user_guess))
+
+  if [ $user_guess -eq $random_number ]; then
+    echo "That's right! You guessed the number!: $random_number"
+    exit 0
+  elif [ $user_guess -lt $random_number ]; then
+    echo "Too small. Try again."
+  else
+    echo "Too big. Try again."
+  fi
+
+done
+
+echo "Trials are over! Correct number: $random_number."
+exit 1
