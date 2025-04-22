@@ -1,0 +1,35 @@
+#!/bin/bash
+
+WATCH_DIR=~/watch
+
+if [ ! -d "$WATCH_DIR" ]; then
+    echo "The directory $WATCH_DIR does not exist. Create it."
+    mkdir -p "$WATCH_DIR"
+fi
+
+declare -A files
+for file in "$WATCH_DIR"/*; do
+    [ -f "$file" ] && files["$file"]=1
+done
+
+echo "Directory monitorinп $WATCH_DIR..."
+
+while true; do
+    for file in "$WATCH_DIR"/*; do
+      	    [ -f "$file" ] || continue
+
+    	    if [ -z "${files["$file"]}" ]; then
+            echo "New file found: $file"
+            echo "File content:"
+            cat "$file"
+            
+            mv "$file" "$file.back"
+            echo "File renamed to $file.back"
+
+            files["$file.back"]=1
+        fi
+    done
+
+    sleep 5
+done
+
