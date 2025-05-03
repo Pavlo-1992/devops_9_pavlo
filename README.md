@@ -1,9 +1,3 @@
-# devops_9_pavlo
+# devops_8_pavlo
 
-New text
-Repo for my hometasks
-
-
-Not new text!
-
-This my second test!
+Repo for my homeworks!
