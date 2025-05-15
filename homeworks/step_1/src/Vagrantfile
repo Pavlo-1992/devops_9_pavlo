@@ -1,0 +1,31 @@
+Vagrant.configure("2") do |config|
+
+  # First machine db
+  config.vm.define "db_vm" do |db_vm|
+    db_vm.vm.box = "generic/ubuntu2204"
+    db_vm.vm.hostname = "db-vm"
+    db_vm.vm.network "private_network", ip: "192.168.56.10"
+    db_vm.vm.provision "shell", inline: <<-SHELL
+      echo "DB_USER=#{ENV['DB_USER']}" >> /etc/environment
+      echo "DB_PASS=#{ENV['DB_PASS']}" >> /etc/environment
+      echo "DB_NAME=#{ENV['DB_NAME']}" >> /etc/environment 
+    SHELL
+    db_vm.vm.provision "shell", path: "db_provision.sh"
+   end
+
+#Second machine app
+    config.vm.define "app_vm" do |app_vm|
+   app_vm.vm.box = "generic/ubuntu2204"
+   app_vm.vm.hostname = "app-vm"
+   app_vm.vm.network "forwarded_port", guest: 8080, host: 8080
+   app_vm.vm.network "private_network", ip: "192.168.56.11"
+   app_vm.vm.provision "shell", inline: <<-SHELL
+      echo "DB_USER=#{ENV['DB_USER']}" >> /etc/environment
+      echo "DB_PASS=#{ENV['DB_PASS']}" >> /etc/environment
+      echo "DB_NAME=#{ENV['DB_NAME']}" >> /etc/environment
+      echo "DB_HOST=192.168.56.10" >> /etc/environment
+      echo "DB_PORT=3306" >> /etc/environment
+   SHELL
+   app_vm.vm.provision "shell", path: "app_provision.sh"
+   end
+end 
