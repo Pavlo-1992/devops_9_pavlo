@@ -8,7 +8,8 @@ Vagrant.configure("2") do |config|
     db_vm.vm.provision "shell", inline: <<-SHELL
       echo "DB_USER=#{ENV['DB_USER']}" >> /etc/environment
       echo "DB_PASS=#{ENV['DB_PASS']}" >> /etc/environment
-      echo "DB_NAME=#{ENV['DB_NAME']}" >> /etc/environment 
+      echo "DB_NAME=#{ENV['DB_NAME']}" >> /etc/environment
+      echo "PROJECT_DIR=#{ENV['PROJECT_DIR']}" >> /etc/environment 
     SHELL
     db_vm.vm.provision "shell", path: "db_provision.sh"
    end
@@ -23,9 +24,15 @@ Vagrant.configure("2") do |config|
       echo "DB_USER=#{ENV['DB_USER']}" >> /etc/environment
       echo "DB_PASS=#{ENV['DB_PASS']}" >> /etc/environment
       echo "DB_NAME=#{ENV['DB_NAME']}" >> /etc/environment
+      echo "PROJECT_DIR=#{ENV['PROJECT_DIR']}" >> /etc/environment
       echo "DB_HOST=192.168.56.10" >> /etc/environment
       echo "DB_PORT=3306" >> /etc/environment
    SHELL
    app_vm.vm.provision "shell", path: "app_provision.sh"
    end
 end 
+
+
+#vagrant up > vagrant.log 2>&1
+
+#Get-Content D:\aD\vagrant_config\vagrant.log -wait
