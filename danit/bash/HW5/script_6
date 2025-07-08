@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "imput:"
+read imput
+reversed=$(echo $imput | awk '{ for (i=NF; i>0; i--) printf $i" "; print "" }')
+echo "$reversed"

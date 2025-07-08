@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ANSWER="матняк"
+
+
+while true; do
+read -p "What is your name?" user_answer
+
+if [ "$user_answer" == "$ANSWER" ]; then
+	echo "Hello $ANSWER"
+	break
+else
+	echo "Wrong answer!!! You not $user_answer!!"
+fi
+done

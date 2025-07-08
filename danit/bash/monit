@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# 1. Встановлення Nginx
+sudo apt update
+sudo apt install -y nginx
+
+# 2. Налаштування та запуск Nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
+# Перевірка статусу Nginx
+sudo systemctl status nginx
+
+# 3. Встановлення Monit
+sudo apt install -y monit
+
+# 4. Налаштування Monit для моніторингу Nginx
+MONIT_CONFIG="/etc/monit/conf-enabled/nginx"
+sudo bash -c "cat > $MONIT_CONFIG" << EOL
+check process nginx with pidfile /run/nginx.pid
+  start program = \"/usr/sbin/service nginx start\"
+  stop program  = \"/usr/sbin/service nginx stop\"
+  if failed host 127.0.0.1 port 80 protocol http then restart
+  if 7 restarts within 7 cycles then timeout
+EOL
+
+# 5. Перезапуск Monit для застосування змін
+sudo systemctl restart monit
+
+# 6. Перевірка статусу Monit та Nginx
+monit status
+sudo systemctl status nginx
+
