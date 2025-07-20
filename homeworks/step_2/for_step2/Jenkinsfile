@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/ваш_юзер/forStep2-node-app.git', branch: 'main'
+        git url: 'https://github.com/Pavlo-1992/forStep2-node-app.git', branch: 'main'
       }
     }
     stage('Build Docker image') {
@@ -21,7 +21,7 @@ pipeline {
             sh 'npm test'
           }
           if (currentBuild.result == 'FAILURE') {
-            error "Тести не вдалися"
+            error "Tests failed!!!"
           }
         }
       }
