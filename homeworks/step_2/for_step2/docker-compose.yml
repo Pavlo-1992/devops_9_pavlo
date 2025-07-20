@@ -20,7 +20,7 @@ services:
       - jenkins-server
     environment:
       - JENKINS_AGENT_SSH_PUBKEY=/var/jenkins_home/.ssh/agent.id_rsa.pub
-      - JENKINS_URL=http://jenkins-server:8888
+      - JENKINS_URL=http://jenkins-server:8080
     volumes:
       - jenkins_home:/var/jenkins_home
 
