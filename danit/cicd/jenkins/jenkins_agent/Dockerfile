@@ -22,4 +22,3 @@ RUN groupadd -g 982 docker && \
 # Switch back to Jenkins user
 USER jenkins
 
-
