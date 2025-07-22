@@ -2,46 +2,52 @@ pipeline {
   agent { label 'jenkins-agent' }
 
   environment {
-        DOCKER_CREDENTIALS = 'dockerhub-credentials'
-        IMAGE_NAME = 'savanchukpavlo/step_2' // Ваш репозиторій на Docker Hub
-    }
+    DOCKER_CREDENTIALS = 'dockerhub-credentials'
+    IMAGE_NAME = 'savanchukpavlo/step_2'
+  }
+
   stages {
     stage('Checkout') {
       steps {
-             dir('homeworks/step_2/for_step2') {
-              git url:'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
-         }
+        dir('homeworks/step_2/for_step2') {
+          git url: 'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
+        }
       }
     }
+
     stage('Build Docker image') {
       steps {
-             dir('homeworks/step_2/for_step2') {
-        script {
-          dockerImage = docker.build("forstep2-app:${env.BUILD_NUMBER}")
+        dir('homeworks/step_2/for_step2') {
+          script {
+            def dockerImage = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
+            env.DOCKER_IMAGE_ID = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
           }
         }
       }
     }
+
     stage('Run tests') {
       steps {
-        script {
-          def testResult = dockerImage.inside {
-            sh 'npm install'
-            sh 'npm test'
-          }
-          if (currentBuild.result == 'FAILURE') {
-            error "Tests failed!!!"
+        dir('homeworks/step_2/for_step2') {
+          script {
+            docker.image(env.DOCKER_IMAGE_ID).inside('--entrypoint=""') {
+              sh 'npm install'
+              sh 'npm test'
+            }
           }
         }
       }
     }
+
     stage('Push to Docker Hub') {
       when { expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } }
       steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        withCredentials([usernamePassword(credentialsId: "${env.DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           script {
             sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-            dockerImage.push("${env.BUILD_NUMBER}")
+            sh "docker tag ${env.DOCKER_IMAGE_ID} ${env.IMAGE_NAME}:latest"
+            sh "docker push ${env.DOCKER_IMAGE_ID}"
+            sh "docker push ${env.IMAGE_NAME}:latest"
           }
         }
       }
