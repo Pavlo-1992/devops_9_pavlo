@@ -32,7 +32,7 @@ pipeline {
           script {
             docker.image(env.DOCKER_IMAGE_ID).withRun('-e CI=true') { container ->
               sh "docker exec ${container.id} npm install"
-              sh "docker exec ${container.id} npm test"
+              sh "docker exec ${container.id} test"
             }
           }
         }
