@@ -15,3 +15,4 @@ RUN groupadd -g 982 docker && \
     usermod -aG docker jenkins
 USER jenkins
 RUN jenkins-plugin-cli --plugins "blueocean docker-workflow"
+

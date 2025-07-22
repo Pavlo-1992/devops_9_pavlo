@@ -1,9 +1,16 @@
 pipeline {
   agent { label 'jenkins-agent' }
+
+  environment {
+        DOCKER_CREDENTIALS = 'dockerhub-credentials'
+        IMAGE_NAME = 'savanchukpavlo/step_2' // Ваш репозиторій на Docker Hub
+    }
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/Pavlo-1992/forStep2-node-app.git', branch: 'main'
+             dir('homeworks/step_2/for_step2') {
+              git url:'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
+         }
       }
     }
     stage('Build Docker image') {
@@ -39,3 +46,4 @@ pipeline {
     }
   }
 }
+

@@ -18,10 +18,16 @@ services:
     depends_on:
       - jenkins-server
     environment:
-      - JENKINS_AGENT_SSH_PUBKEY=/var/jenkins_home/.ssh/agent.id_rsa.pub
-      - JENKINS_URL=http://192.168.0.105:8888
+      - JENKINS_URL=http://jenkins-server:8080
     volumes:
       - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      -url http://jenkins-server:8080
+      -secret 949b239e92b1ca63ce97717e195396aa66a25edf620816563c3b57e61e68ca01
+      -name jenkins-agent
+      -workDir /home/jenkins/agent
 
 volumes:
   jenkins_home:
+
