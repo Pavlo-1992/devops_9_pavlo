@@ -24,7 +24,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: >
       -url http://jenkins-server:8080
-      -secret 949b239e92b1ca63ce97717e195396aa66a25edf620816563c3b57e61e68ca01
+      -secret cb6b0be19dc7466d7581f1090120fd9c8f91e951bc0b7068fe51e75976590c6e
       -name jenkins-agent
       -workDir /home/jenkins/agent
 
