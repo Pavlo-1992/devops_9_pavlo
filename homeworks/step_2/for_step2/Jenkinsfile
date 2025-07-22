@@ -15,8 +15,10 @@ pipeline {
     }
     stage('Build Docker image') {
       steps {
+             dir('homeworks/step_2/for_step2') {
         script {
           dockerImage = docker.build("forstep2-app:${env.BUILD_NUMBER}")
+          }
         }
       }
     }
