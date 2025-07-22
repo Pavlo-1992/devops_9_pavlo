@@ -33,7 +33,7 @@ pipeline {
           script {
             def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             try {
-              sh "docker run --rm --name step2_test_container ${imageTag} npm test"
+              sh "docker run --rm --init --netwokr none --name step2_test_container ${imageTag} npm test"
             } catch (err) {
               echo 'Test faild!'
               error("Stop pipeline.")
