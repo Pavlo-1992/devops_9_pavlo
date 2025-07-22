@@ -20,8 +20,8 @@ pipeline {
       steps {
         dir("${env.REPO_DIR}") {
           script {
-                  sh "docker build -t $IMAGE_NAME:$BUILD_NUMBER ."
-
+            IMAGE_TAG = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+            docker.build(IMAGE_TAG)
           }
         }
       }
@@ -31,10 +31,11 @@ pipeline {
       steps {
         dir("${env.REPO_DIR}") {
           script {
+            def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             try {
-             sh "docker run --rm --name step2_test_container $IMAGE_NAME:$BUILD_NUMBER npm test"
+             sh "docker run --rm -e NODE_ENV=test -e PORT=8081 --name step2_test_container ${imageTag} npm test"
              } catch (err) {
-              echo 'Test failed!'
+              echo 'Test faild!'
               error("Stop pipeline.")
             }
           }
@@ -54,13 +55,14 @@ pipeline {
         )]) {
           script {
             def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-            def latestTag = "${env.IMAGE_NAME}:latest"
             sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-            sh "docker tag ${imageTag} ${latestTag}"
-            sh "docker push ${latestTag}"
+            sh "docker tag ${imageTag} ${env.IMAGE_NAME}:latest"
+            sh "docker push ${imageTag}"
+            sh "docker push ${env.IMAGE_NAME}:latest"
           }
         }
       }
     }
   }
 }
+
