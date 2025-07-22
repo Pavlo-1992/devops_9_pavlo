@@ -30,9 +30,9 @@ pipeline {
       steps {
         dir('homeworks/step_2/for_step2') {
           script {
-            docker.image(env.DOCKER_IMAGE_ID).inside('--entrypoint=""') {
-              sh 'npm install'
-              sh 'npm test'
+            docker.image(env.DOCKER_IMAGE_ID).withRun('-e CI=true') { container ->
+              sh "docker exec ${container.id} npm install"
+              sh "docker exec ${container.id} npm test"
             }
           }
         }
@@ -40,7 +40,11 @@ pipeline {
     }
 
     stage('Push to Docker Hub') {
-      when { expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } }
+      when {
+        expression {
+          currentBuild.result == null || currentBuild.result == 'SUCCESS'
+        }
+      }
       steps {
         withCredentials([usernamePassword(credentialsId: "${env.DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           script {
