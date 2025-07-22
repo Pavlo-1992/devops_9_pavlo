@@ -4,12 +4,13 @@ pipeline {
   environment {
     DOCKER_CREDENTIALS = 'dockerhub-credentials'
     IMAGE_NAME = 'savanchukpavlo/step_2'
+    REPO_DIR = 'homeworks/step_2/for_step2'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        dir('homeworks/step_2/for_step2') {
+        dir("${env.REPO_DIR}") {
           git url: 'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
         }
       }
@@ -17,10 +18,10 @@ pipeline {
 
     stage('Build Docker image') {
       steps {
-        dir('homeworks/step_2/for_step2') {
+        dir("${env.REPO_DIR}") {
           script {
-            def dockerImage = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
-            env.DOCKER_IMAGE_ID = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+            IMAGE_TAG = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+            docker.build(IMAGE_TAG)
           }
         }
       }
@@ -28,11 +29,17 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        dir('homeworks/step_2/for_step2') {
+        dir("${env.REPO_DIR}") {
           script {
-            docker.image(env.DOCKER_IMAGE_ID).inside('--entrypoint=""') {
-              sh 'npm install'
-              sh 'npm test'
+            def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+            try {
+              docker.image(imageTag).inside('--entrypoint /bin/sh') {
+                sh 'npm install'
+                sh 'npm test'
+              }
+            } catch (err) {
+              echo 'Test faild!'
+              error("Stop pipeline.")
             }
           }
         }
@@ -40,13 +47,20 @@ pipeline {
     }
 
     stage('Push to Docker Hub') {
-      when { expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } }
+      when {
+        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+      }
       steps {
-        withCredentials([usernamePassword(credentialsId: "${env.DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        withCredentials([usernamePassword(
+          credentialsId: "${env.DOCKER_CREDENTIALS}",
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
           script {
-            sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-            sh "docker tag ${env.DOCKER_IMAGE_ID} ${env.IMAGE_NAME}:latest"
-            sh "docker push ${env.DOCKER_IMAGE_ID}"
+            def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+            sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+            sh "docker tag ${imageTag} ${env.IMAGE_NAME}:latest"
+            sh "docker push ${imageTag}"
             sh "docker push ${env.IMAGE_NAME}:latest"
           }
         }
@@ -54,3 +68,4 @@ pipeline {
     }
   }
 }
+
