@@ -33,8 +33,8 @@ pipeline {
           script {
             def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             try {
-              sh "docker run --rm -e NODE_ENV=test -e PORT=8082 -p 8082:80 --name step2_test_container ${imageTag} npm test"
-            } catch (err) {
+             sh "docker run --rm -e NODE_ENV=test -e PORT=8088 --name step2_test_container ${imageTag} npm test"
+             } catch (err) {
               echo 'Test faild!'
               error("Stop pipeline.")
             }
