@@ -36,7 +36,7 @@ stage('Run tests') {
               docker rm -f step2_test_container || true
             fi
           '''
-          sh "docker run --rm --name step2_test_container ${IMAGE_TAG} sh -c 'npm test'"
+          sh "docker run --rm --name step2_test_container ${IMAGE_TAG} sh -c 'npm test tests/'"
         } catch (err) {
           echo 'Test failed!'
           error("Stopping the pipeline due to test failure.")
