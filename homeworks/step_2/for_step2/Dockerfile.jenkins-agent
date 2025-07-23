@@ -16,7 +16,7 @@ RUN apt-get update && \
 # Install Docker CLI and other tools
 RUN apt-get install -y docker-ce-cli docker-compose-plugin git
 
-RUN groupadd -g 982 docker && \
+RUN groupadd -g 988 docker && \
     usermod -aG docker jenkins
 
 # Switch back to Jenkins user

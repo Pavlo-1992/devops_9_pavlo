@@ -5,11 +5,11 @@ services:
       dockerfile: Dockerfile.jenkins-server
     container_name: jenkins-server
     ports:
-      - "8888:8080"
+      - "8080:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-
+      - /var/run/docker.sock:/var/run/docker.sock
   jenkins-agent:
     build:
       context: .
@@ -24,7 +24,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     command: >
       -url http://jenkins-server:8080
-      -secret cb6b0be19dc7466d7581f1090120fd9c8f91e951bc0b7068fe51e75976590c6e
+      -secret 4d58487a733815424bf4ed4946f6c100ee68a7f239f70b7e84613896f805dfb3
       -name jenkins-agent
       -workDir /home/jenkins/agent
 
