@@ -26,21 +26,25 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        dir("${env.REPO_DIR}") {
-          script {
-            try {
-              sh "docker run --rm --network host --name step2_test_container ${IMAGE_TAG} sh -c 'npm test'"
-            } catch (err) {
-              echo 'Test failed!'
-              error("Stopping the pipeline due to test failure.")
-            }
-          }
+stage('Run tests') {
+  steps {
+    dir("${env.REPO_DIR}") {
+      script {
+        try {
+          sh '''
+            if docker ps -a --format '{{.Names}}' | grep -q step2_test_container; then
+              docker rm -f step2_test_container || true
+            fi
+          '''
+          sh "docker run --rm --name step2_test_container ${IMAGE_TAG} sh -c 'npm test'"
+        } catch (err) {
+          echo 'Test failed!'
+          error("Stopping the pipeline due to test failure.")
         }
       }
     }
-
+  }
+}
     stage('Push to Docker Hub and clean up') {
       when {
         expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
