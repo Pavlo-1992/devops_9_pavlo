@@ -20,6 +20,7 @@ pipeline {
       steps {
         dir("${env.REPO_DIR}") {
           script {
+            sh 'ls -la'
             IMAGE_TAG = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             docker.build(IMAGE_TAG)
           }
