@@ -4,15 +4,14 @@ pipeline {
   environment {
     DOCKER_CREDENTIALS = 'dockerhub-credentials'
     IMAGE_NAME = 'savanchukpavlo/step_2'
+    IMAGE_TAG = "${IMAGE_NAME}:${BUILD_NUMBER}"
     REPO_DIR = 'homeworks/step_2/for_step2'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        dir("${env.REPO_DIR}") {
-          git url: 'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
-        }
+        git url: 'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
       }
     }
 
@@ -21,8 +20,7 @@ pipeline {
         dir("${env.REPO_DIR}") {
           script {
             sh 'ls -la'
-            IMAGE_TAG = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-            docker.build(IMAGE_TAG)
+            docker.build("${IMAGE_TAG}")
           }
         }
       }
@@ -32,19 +30,18 @@ pipeline {
       steps {
         dir("${env.REPO_DIR}") {
           script {
-            def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             try {
-             sh "docker run --rm --name step2_test_container ${imageTag} npm test"
-             } catch (err) {
-              echo 'Test faild!'
-              error("Stop pipeline.")
+              sh "docker run --rm --name step2_test_container ${IMAGE_TAG} npm test"
+            } catch (err) {
+              echo 'Test failed!'
+              error("Stopping the pipeline due to test failure.")
             }
           }
         }
       }
     }
 
-    stage('Push to Docker Hub and delete images') {
+    stage('Push to Docker Hub and clean up') {
       when {
         expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
       }
@@ -55,12 +52,11 @@ pipeline {
           passwordVariable: 'DOCKER_PASS'
         )]) {
           script {
-            def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-            sh "docker tag ${imageTag} ${env.IMAGE_NAME}:latest"
-            sh "dcoker push ${imageTag}"
-            sh "docker push ${env.IMAGE_NAME}:latest"
-            sh "docker rmi  ${imageTag} ${env.IMAGE_NAME}:latest"
+            sh "docker tag ${IMAGE_TAG} ${IMAGE_NAME}:latest"
+            sh "docker push ${IMAGE_TAG}"
+            sh "docker push ${IMAGE_NAME}:latest"
+            sh "docker rmi ${IMAGE_TAG} ${IMAGE_NAME}:latest"
           }
         }
       }
