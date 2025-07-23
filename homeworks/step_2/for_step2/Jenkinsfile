@@ -34,7 +34,7 @@ pipeline {
           script {
             def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             try {
-             sh "docker run --rm -e NODE_ENV=test -e PORT=8081 --name step2_test_container ${imageTag} npm test"
+             sh "docker run --rm --name step2_test_container ${imageTag} npm test"
              } catch (err) {
               echo 'Test faild!'
               error("Stop pipeline.")
@@ -44,7 +44,7 @@ pipeline {
       }
     }
 
-    stage('Push to Docker Hub') {
+    stage('Push to Docker Hub and delete images') {
       when {
         expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
       }
@@ -58,7 +58,9 @@ pipeline {
             def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
             sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
             sh "docker tag ${imageTag} ${env.IMAGE_NAME}:latest"
+            sh "dcoker push ${imageTag}"
             sh "docker push ${env.IMAGE_NAME}:latest"
+            sh "docker rmi  ${imageTag} ${env.IMAGE_NAME}:latest"
           }
         }
       }
