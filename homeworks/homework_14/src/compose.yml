@@ -2,8 +2,6 @@ services:
   app:
     image: my_app
     container_name: app_hw_14
-    ports:
-      - "8000:8000"
     
   nginx:
     image: nginx:latest
