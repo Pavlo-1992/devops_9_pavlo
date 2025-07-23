@@ -5,44 +5,34 @@ pipeline {
     DOCKER_CREDENTIALS = 'dockerhub-credentials'
     IMAGE_NAME = 'savanchukpavlo/step_2'
     IMAGE_TAG = "${IMAGE_NAME}:${BUILD_NUMBER}"
-    REPO_DIR = 'homeworks/step_2/for_step2'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/Pavlo-1992/devops_9_pavlo.git', branch: 'main'
+        git url: 'https://github.com/Pavlo-1992/step_2.git', branch: 'main'
       }
     }
 
     stage('Build Docker image') {
       steps {
-        dir("${env.REPO_DIR}") {
           script {
             sh 'ls -la'
             docker.build("${IMAGE_TAG}")
-          }
         }
       }
     }
 
 stage('Run tests') {
   steps {
-    dir("${env.REPO_DIR}") {
-      script {
+    script {
         try {
-          sh '''
-            if docker ps -a --format '{{.Names}}' | grep -q step2_test_container; then
-              docker rm -f step2_test_container || true
-            fi
-          '''
-          sh "docker run --rm --name step2_test_container ${IMAGE_TAG} sh -c 'npm test tests/'"
+          sh "docker run --rm --name step2_test_container ${IMAGE_TAG} test"
         } catch (err) {
           echo 'Test failed!'
-          error("Stopping the pipeline due to test failure.")
+          error("Stopping the pipeline!")
         }
       }
-    }
   }
 }
     stage('Push to Docker Hub and clean up') {
