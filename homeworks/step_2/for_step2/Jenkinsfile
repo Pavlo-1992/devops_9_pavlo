@@ -31,7 +31,7 @@ pipeline {
         dir("${env.REPO_DIR}") {
           script {
             try {
-              sh "docker run --rm --name step2_test_container -e PORT=8080 ${IMAGE_TAG} sh -c 'npm test'"
+              sh "docker run --rm --network host --name step2_test_container ${IMAGE_TAG} sh -c 'npm test'"
             } catch (err) {
               echo 'Test failed!'
               error("Stopping the pipeline due to test failure.")
