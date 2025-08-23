@@ -1,0 +1,22 @@
+Task 1
+Login to AWS web console
+
+Create a test EC2 instance with type t2.micro based on Ubuntu. Use public IP
+
+Connect to EC2 via SSH. Check that it works
+
+Destroy the test EC2 instance
+
+
+Task 2
+Create an S3 bucket. Give it any unique name
+
+Upload any test file to S3. Download this file to your PC
+
+Create your own IAM policy which allows access to only this specific S3 bucket
+
+Create your own test user and provide them only this policy
+
+Login to AWS console with the created user and check that this user has access only to this S3 bucket
+
+Remove the created user, created policy, and S3 bucket
