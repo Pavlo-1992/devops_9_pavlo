@@ -1,0 +1,112 @@
+---
+- name: "Ubuntu-only: Install Docker + Compose and run Nginx with docker compose"
+  hosts: web_server
+  become: true
+  gather_facts: true
+
+  vars:
+    compose_project_dir: /opt/nginx
+    http_port: "80"
+    mount_html: false
+    docker_keyring: /etc/apt/keyrings/docker.gpg
+    docker_list: /etc/apt/sources.list.d/docker.list
+
+  tasks:
+    - name: Ensure prerequisites are installed
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: true
+
+    - name: Remove any old Docker sources list file
+      ansible.builtin.file:
+        path: "{{ docker_list }}"
+        state: absent
+
+    - name: Ensure keyrings dir exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Remove any old Docker keyring to force a clean reimport
+      ansible.builtin.file:
+        path: "{{ docker_keyring }}"
+        state: absent
+
+    - name: Download and dearmor Docker GPG key (official)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor > "{{ docker_keyring }}"
+      args:
+        executable: /bin/bash
+
+    - name: Set permissions on keyring
+      ansible.builtin.file:
+        path: "{{ docker_keyring }}"
+        state: file
+        mode: '0644'
+
+    - name: Add Docker apt repository (single line)
+      ansible.builtin.copy:
+        dest: "{{ docker_list }}"
+        mode: '0644'
+        content: |
+          deb [arch={{ 'arm64' if ansible_facts.architecture in ['aarch64','arm64'] else 'amd64' }} signed-by={{ docker_keyring }}] https://download.docker.com/linux/ubuntu {{ ansible_facts.distribution_release }} stable
+
+    - name: apt update
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Docker Engine and Compose v2
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable and start Docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Create project directory
+      ansible.builtin.file:
+        path: "{{ compose_project_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Create optional HTML directory
+      ansible.builtin.file:
+        path: "{{ compose_project_dir }}/html"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      when: mount_html
+
+    - name: Write docker-compose.yml (rendered from template)
+      ansible.builtin.template:
+        src: templates/docker-compose.yml.j2
+        dest: "{{ compose_project_dir }}/docker-compose.yml"
+        mode: '0644'
+
+    - name: Pull Nginx image with docker compose
+      ansible.builtin.command: docker compose pull
+      args:
+        chdir: "{{ compose_project_dir }}"
+
+    - name: Start Nginx with docker compose
+      ansible.builtin.command: docker compose up -d
+      args:
+        chdir: "{{ compose_project_dir }}"
