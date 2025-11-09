@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petshop-app-deployment
+  labels:
+    app: petshop-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petshop-app
+  template:
+    metadata:
+      labels:
+        app: petshop-app
+    spec:
+      containers:
+      - name: petshop-app-container
+        image: petshop-app:latest # буде замінено у CI на $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_USER
+          value: "petshop"
+        - name: DB_NAME
+          value: "shop"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: petshop-mysql-secret
+              key: mysql-root-password
+
