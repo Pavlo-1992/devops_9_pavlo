@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: petshop-app-container
-        image: petshop-app:latest # буде замінено у CI на $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
+        image: petshop-app:latest 
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000

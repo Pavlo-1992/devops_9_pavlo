@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     app: petshop-app
-  type: NodePort # Для доступу ззовні MiniKube
+  type: NodePort 
   ports:
   - port: 80
     targetPort: 5000
