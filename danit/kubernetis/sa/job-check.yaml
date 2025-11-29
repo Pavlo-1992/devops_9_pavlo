@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: api-checker-all-job
+spec:
+  template:
+    spec:
+      serviceAccountName: pavlo-sa
+      restartPolicy: Never
+      containers:
+      - name: curl
+        image: curlimages/curl
+        command: ["sh", "-c"]
+        args:
+        - >
+          echo "=== Testing access ===";
+          curl -sSk -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+          https://kubernetes.default.svc/api/v1/pods;
+          echo "=== Done ===";
